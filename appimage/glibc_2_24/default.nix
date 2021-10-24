@@ -77,7 +77,10 @@ self: super:
         + " -Wno-error=restrict"
         + " -Wno-error=unused-const-variable"
         + " -Wno-error=int-conversion"
-        + " -Wno-error=unused-function";
+        + " -Wno-error=unused-function"
+        # and some more
+        + " -Wno-error=format-overflow"
+      ;
       }
     );
   in {
