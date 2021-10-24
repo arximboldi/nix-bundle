@@ -60,6 +60,8 @@ self: super:
             "--enable-kernel=2.6.32"
           ];
 
+      hardeningDisable = [ "all" ];
+
       NIX_CFLAGS_COMPILE =
         (newGlibc.NIX_CFLAGS_COMPILE or "")
         # from old glibc
