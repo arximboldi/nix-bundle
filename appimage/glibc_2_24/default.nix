@@ -87,6 +87,11 @@ self: super:
     glibc = glibcAdapter "glibc";
     glibcLocales = glibcAdapter "glibcLocales";
     glibcInfo = glibcAdapter "glibcInfo";
+    binutils = super.binutils.overrideAttrs (attrs: {
+      inherit (oldPkgs.binutils) name src outputs configureFlags;
+      hardeningDisable = [ "all" ];
+      patches = [];
+    });
     llvmPackages_11.llvm = super.llvmPackages_11.llvm.overrideAttrs (attrs: {
       doCheck = false; # test fails: intrinsics.ll
     });
