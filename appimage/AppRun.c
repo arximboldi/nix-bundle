@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
     char *executable = basename(line+5);
 
     char full_exec[PATH_MAX];
-    snprintf(full_exec, sizeof(full_exec), "/usr/bin/%s", executable);
+    snprintf(full_exec, sizeof(full_exec), "%s/usr/bin/%s", appdir, executable);
 
     // get uid, gid before going to new namespace
     uid_t uid = getuid();
@@ -259,10 +259,10 @@ int main(int argc, char *argv[]) {
 
     /* Run */
     // FIXME: What about arguments in the Exec= line of the desktop file?
-    ret = execvp(full_exec, argv);
+    ret = execv(full_exec, argv);
 
     if (ret == -1)
-        die("Error executing '%s'; return code: %d\n", full_exec, ret);
+      die("Error executing '%s'; return code: %d: %s\n", full_exec, ret, strerror(errno));
 
     free(line);
     free(desktop_file);
