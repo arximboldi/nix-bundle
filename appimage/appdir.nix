@@ -9,7 +9,6 @@
 , runCommand
 , glibc
 , binutils
-, muslPkgs
 }:
 
 let
@@ -34,13 +33,13 @@ let
     with builtins;
     unsafeDiscardStringContext (baseNameOf program);
 
-  AppRun = targets: muslPkgs.stdenv.mkDerivation {
+  AppRun = targets: stdenv.mkDerivation {
     name = "AppRun";
 
     phases = [ "buildPhase" "installPhase" "fixupPhase" ];
 
     buildPhase = ''
-      CC="$CC -O2 -Wall -Wno-deprecated-declarations -Wno-unused-result -static"
+      CC="$CC -O2 -Wall -Wno-deprecated-declarations -Wno-unused-result"
       $CC ${./AppRun.c} -o AppRun -DENV_PATH='"${lib.makeBinPath targets}"'
     '';
 
@@ -197,5 +196,10 @@ EOF
     cp $desktop .
 
     cp ${AppRun targets}/bin/AppRun AppRun
+    chmod +w AppRun
+    patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 AppRun
+    # NOTE: haven't fixed the rpath of AppRun, since we don't know what
+    #       directory it will be called from. I'm not sure if that'll be an
+    #       issue. If it is, we can go back to compiling statically with musl
   '';
 }

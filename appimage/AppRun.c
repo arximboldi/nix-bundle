@@ -46,7 +46,7 @@ THE SOFTWARE.
 
 #define PATH_MAX 4096
 
-#define LINE_SIZE 255
+#define LINE_SIZE 513
 
 #define err_exit(format, ...) { fprintf(stderr, format ": %s\n", ##__VA_ARGS__, strerror(errno)); exit(EXIT_FAILURE); }
 
