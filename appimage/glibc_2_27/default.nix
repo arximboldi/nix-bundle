@@ -32,6 +32,7 @@ in {
 
   glibc = (hack-up-package "${nixpkgs-old}/pkgs/development/libraries/glibc/default.nix" {
     inherit (super) callPackage;
+    installLocales = false;
   }).overrideAttrs (attrs: {
     NIX_CFLAGS_COMPILE = "-Wno-error";
   });
