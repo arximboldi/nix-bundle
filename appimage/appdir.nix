@@ -9,6 +9,7 @@
 , runCommand
 , glibc
 , binutils
+, muslPkgs
 }:
 
 let
@@ -32,6 +33,23 @@ let
   nameFromProgram = program:
     with builtins;
     unsafeDiscardStringContext (baseNameOf program);
+
+  AppRun = targets: muslPkgs.stdenv.mkDerivation {
+    name = "AppRun";
+
+    phases = [ "buildPhase" "installPhase" "fixupPhase" ];
+
+    buildPhase = ''
+      CC="$CC -O2 -Wall -Wno-deprecated-declarations -Wno-unused-result -static"
+      $CC ${./AppRun.c} -o AppRun -DENV_PATH='"${lib.makeBinPath targets}"'
+    '';
+
+    installPhase = ''
+      mkdir -p $out/bin
+      cp AppRun $out/bin/AppRun
+    '';
+  };
+
 in
 
 # You should supply exactly one of program, target
@@ -51,8 +69,11 @@ in
 , excludePkgs ? []
 , excludeLibs ? import ./excludelist.nix
 }:
-let closure = closureInfo { rootPaths = [ target ] ++ extraTargets; };
-in stdenv.mkDerivation {
+let
+  targets = [ target ] ++ extraTargets;
+  closure = closureInfo { rootPaths = targets; };
+in
+stdenv.mkDerivation {
   name = "${name}.AppDir";
   nativeBuildInputs = [ perl ];
   exclude_pkgs = with builtins; concatStringsSep " "
@@ -175,11 +196,6 @@ EOF
     fi
     cp $desktop .
 
-    cp ${appimagekit}/bin/AppRun AppRun
-    chmod +w AppRun
-    patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 AppRun
-    # NOTE: haven't fixed the rpath of AppRun, since we don't know what
-    #       directory it will be called from. I'm not sure if that'll be an
-    #       issue. If it is, we can go back to compiling statically with musl
+    cp ${AppRun targets}/bin/AppRun AppRun
   '';
 }
